@@ -1,0 +1,13 @@
+[package]
+name = "counter"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+borsh = "1.6.0"
+litesvm = "0.9.1"
+solana-program = "3.0.0"
+solana-sdk = "3.0.0"
+
+[lib]
+crate-type = ["cdylib", "lib"]
