@@ -29,23 +29,23 @@ This repository follows **Conventional Commits**.
 
 #### Common Types:
 
-- `feat` - new program, instruction, or functionality
+- `<framework>` - adding a new program
+- `feat` - functionality
 - `fix` - bug fixes
 - `docs` - documentation only changes
 - `test` - tests only
 - `refactor` - code changes without behavior change
-- `perf` - performance or compute optimizations
 - `chore` - tooling, configuration, or repo maintenance
 
 
 #### Examples:
 
 ```
-feat(anchor-counter): add increment instruction
-feat(native-escrow): implement PDA authority
-docs(counter): add account layout diagram
-test(multisig): add CPI failure cases
-chore: initialize repository structure
+anchor: add counter program
+native: add escrow program
+feat(anchor/counter): add increment instruction
+docs(pinocchio/counter): add account layout diagram
+test(anchor/multisig): add CPI failure cases
 ```
 
 ---
