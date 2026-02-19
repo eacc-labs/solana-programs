@@ -8,7 +8,10 @@ pub const COUNTER_SEED: &[u8] = b"counter";
 #[ephemeral]
 #[program]
 pub mod magicblock_counter {
-    use ephemeral_rollups_sdk::{cpi::DelegateConfig, ephem::commit_accounts};
+    use ephemeral_rollups_sdk::{
+        cpi::DelegateConfig,
+        ephem::{commit_accounts, commit_and_undelegate_accounts},
+    };
 
     use super::*;
 
@@ -51,6 +54,49 @@ pub mod magicblock_counter {
 
         Ok(())
     }
+
+    pub fn undelegate(ctx: Context<IncrementAndCommit>) -> Result<()> {
+        commit_and_undelegate_accounts(
+            &ctx.accounts.payer,
+            vec![&ctx.accounts.counter.to_account_info()],
+            &ctx.accounts.magic_context,
+            &ctx.accounts.magic_program,
+        )?;
+
+        Ok(())
+    }
+
+    pub fn increment_and_commit(ctx: Context<IncrementAndCommit>) -> Result<()> {
+        let counter = &mut ctx.accounts.counter;
+        counter.count += 1;
+
+        msg!("PDA {} count: {}", counter.key(), counter.count);
+        counter.exit(&crate::ID)?;
+        commit_accounts(
+            &ctx.accounts.payer,
+            vec![&ctx.accounts.counter.to_account_info()],
+            &ctx.accounts.magic_context,
+            &ctx.accounts.magic_program,
+        )?;
+
+        Ok(())
+    }
+
+    pub fn increment_and_undelegate(ctx: Context<IncrementAndCommit>) -> Result<()> {
+        let counter = &mut ctx.accounts.counter;
+        counter.count += 1;
+
+        msg!("PDA {} count: {}", counter.key(), counter.count);
+        counter.exit(&crate::ID)?;
+        commit_and_undelegate_accounts(
+            &ctx.accounts.payer,
+            vec![&ctx.accounts.counter.to_account_info()],
+            &ctx.accounts.magic_context,
+            &ctx.accounts.magic_program,
+        )?;
+
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
@@ -75,6 +121,7 @@ pub struct Initialize<'info> {
 pub struct DelegateInput<'info> {
     pub payer: Signer<'info>,
 
+    /// CHECK The pda to delegate
     #[account(mut, del)]
     pub pda: AccountInfo<'info>,
 }
