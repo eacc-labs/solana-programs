@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@magicblock-labs/ephemeral-rollups-sdk": "^0.8.5"
+  }
+}
