@@ -50,7 +50,7 @@ pub fn process_checker(accounts: &[AccountInfo], data: &[u8]) -> ProgramResult {
 
     // Check if the target amount has been met
     let amount_to_raise = u64::from_le_bytes(fundraiser_state.amount_to_raise);
-    if vault_state.amount() >= amount_to_raise {
+    if vault_state.amount() < amount_to_raise {
         return Err(FundraiserErrors::TargetNotMet.into());
     }
 
@@ -86,7 +86,7 @@ pub fn process_checker(accounts: &[AccountInfo], data: &[u8]) -> ProgramResult {
         to: maker_ata,
         amount: vault_state.amount(),
     }
-    .invoke_signed(&[signer]);
+    .invoke_signed(&[signer])?;
 
     Ok(())
 }

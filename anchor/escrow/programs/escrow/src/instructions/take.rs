@@ -14,6 +14,10 @@ pub struct Take<'info> {
     #[account(mut)]
     pub taker: Signer<'info>,
 
+    /// CHECK: Validated via constraint to match escrow.maker. Receives rent from vault closure.
+    #[account(mut, address = escrow.maker)]
+    pub maker: AccountInfo<'info>,
+
     #[account(address = escrow.mint_x)]
     pub mint_x: InterfaceAccount<'info, Mint>,
     #[account(address = escrow.mint_y)]
@@ -71,7 +75,7 @@ impl<'info> Take<'info> {
         let cpi_accounts = TransferChecked {
             from: self.taker_ata_y.to_account_info(),
             to: self.maker_ata_y.to_account_info(),
-            mint: self.maker_ata_y.to_account_info(),
+            mint: self.mint_y.to_account_info(),
             authority: self.taker.to_account_info(),
         };
 
@@ -94,7 +98,7 @@ impl<'info> Take<'info> {
             authority: self.escrow.to_account_info(),
         };
 
-        let seed_bytes = self.escrow.seed.to_be_bytes();
+        let seed_bytes = self.escrow.seed.to_le_bytes();
 
         let seeds = &[
             b"escrow",
@@ -117,11 +121,11 @@ impl<'info> Take<'info> {
 
         let cpi_accounts = CloseAccount {
             account: self.vault.to_account_info(),
-            destination: self.taker.to_account_info(),
+            destination: self.maker.to_account_info(),
             authority: self.escrow.to_account_info(),
         };
 
-        let seed_bytes = self.escrow.seed.to_be_bytes();
+        let seed_bytes = self.escrow.seed.to_le_bytes();
 
         let seeds = &[
             b"escrow",

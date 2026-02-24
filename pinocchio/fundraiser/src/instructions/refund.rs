@@ -56,6 +56,15 @@ pub fn process_refund(accounts: &[AccountInfo], data: &[u8]) -> ProgramResult {
         return Err(ProgramError::InvalidAccountData);
     }
 
+    // Validate that contributor_account PDA is derived from the signer's key
+    let (expected_contributor_pda, _bump) = pubkey::find_program_address(
+        &[b"contributor", fundraiser.key().as_ref(), contributor.key().as_ref()],
+        &crate::ID,
+    );
+    if contributor_account.key() != &expected_contributor_pda {
+        return Err(FundraiserErrors::InvalidContributor.into());
+    }
+
     let contributor_state = Contributor::load(contributor_account)?;
     let contributed_amount = u64::from_le_bytes(contributor_state.amount);
     if contributed_amount == 0 {
