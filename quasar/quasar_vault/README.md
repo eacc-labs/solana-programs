@@ -25,7 +25,7 @@ Each user's vault is derived from the seeds `["vault", user_pubkey]`, ensuring o
 ## Building
 
 ```sh
-quasar build --debug
+quasar build
 ```
 
 ## Testing
@@ -33,6 +33,16 @@ quasar build --debug
 Tests use `quasar_svm` to simulate on-chain execution locally.
 
 ```sh
- cargo test-sbf 
+ quasar test
 ```
+
+## Check CU's
+
+check how much cu's is taken by this quasar program
+
+```sh
+ cargo profile
+```
+
+
 # quasar_vault
