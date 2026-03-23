@@ -1,0 +1,3 @@
+[submodule "quasar/quasar_vault"]
+	path = quasar/quasar_vault
+	url = https://github.com/mishalturkane/quasar_vault.git
