@@ -41,7 +41,7 @@ Tests use `quasar_svm` to simulate on-chain execution locally.
 check how much cu's is taken by this quasar program
 
 ```sh
- cargo profile
+ quasar profile
 ```
 
 
