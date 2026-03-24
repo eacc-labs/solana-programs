@@ -82,13 +82,6 @@ pub fn withdraw(ctx: Ctx<Withdraw>, amount: u64) -> Result<(), ProgramError>
 - [Quasar CLI](https://quasar-lang.com/docs/installation)
 - [Solana CLI](https://docs.solana.com/cli/install-solana-cli-tools)
 
-### Install
-
-```bash
-git clone https://github.com/mishalturkane/quasar_vault
-cd quasar_vault
-```
-
 ---
 
 ## 🛠️ CLI Commands
