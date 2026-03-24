@@ -19,6 +19,7 @@ programs/
 ├── native/        # Native Rust Solana programs
 ├── anchor/        # Anchor framework programs
 ├── pinocchio/     # Pinocchio-based programs
+├── quazar/        # Quasar framework programs
 
 ```
 
