@@ -1,0 +1,30 @@
+[package]
+name = "nft-metaplex"
+version = "0.1.0"
+description = "Created with Anchor"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "nft_metaplex"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
+
+[dependencies]
+anchor-lang = { version = "0.32.1", features = ["init-if-needed"] }
+anchor-spl = { version = "0.32.1", features = ["metadata"] }
+borsh = { version = "1.6.1" }
+borsh-derive = { version = "1.6.1" }
+mpl-core = { version = "0.11.1", features = [ "anchor" ] } 
+mpl-token-metadata = { version = "5.1.1" }
+spl-associated-token-account = { version = "8.0.0", features = ["no-entrypoint"] }
+spl-token = { version = "9.0.0", features = ["no-entrypoint"] }
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(target_os, values("solana"))'] }
