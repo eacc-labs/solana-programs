@@ -19,7 +19,7 @@ pub mod escrow {
     ) -> Result<()> {
         ctx.accounts
             .make(seed, deposit_amount, receive_amount, &ctx.bumps)?;
-
+        ctx.accounts.deposit(deposit_amount)?;  // <-- Add this line
         Ok(())
     }
 
