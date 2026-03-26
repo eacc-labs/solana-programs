@@ -18,9 +18,6 @@ import {
 } from "@solana/spl-token";
 import { assert } from "chai";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────────────────────────────────────
 
 async function airdrop(
   provider: anchor.AnchorProvider,
@@ -53,9 +50,7 @@ function deriveEscrowPda(
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Suite
-// ─────────────────────────────────────────────────────────────────────────────
+
 
 describe("escrow", () => {
   const provider = anchor.AnchorProvider.env();
@@ -63,22 +58,22 @@ describe("escrow", () => {
   const program = anchor.workspace.Escrow as Program<Escrow>;
   const connection = provider.connection;
 
-  // ── Participants ──────────────────────────────────────────────────────────
+  // Participants
   const maker = Keypair.generate();
   const taker = Keypair.generate();
   const mintAuthority = Keypair.generate();
 
-  // ── Token mints ───────────────────────────────────────────────────────────
+  // Token mints 
   let mintX: PublicKey; // maker offers this
   let mintY: PublicKey; // maker wants this in return
 
-  // ── Token accounts ────────────────────────────────────────────────────────
+  // Token accounts 
   let makerAtaX: PublicKey; // maker's mint_x balance  (source of deposit)
   let makerAtaY: PublicKey; // maker's mint_y balance  (destination of receive)
   let takerAtaX: PublicKey; // taker's mint_x balance  (destination from vault)
   let takerAtaY: PublicKey; // taker's mint_y balance  (source of payment)
 
-  // ── Escrow state ──────────────────────────────────────────────────────────
+  // Escrow state 
   const SEED           = new BN(42);
   const DEPOSIT_AMOUNT = new BN(1_000_000); // maker deposits 1 token (6 dp)
   const RECEIVE_AMOUNT = new BN(2_000_000); // maker wants 2 tokens in return
@@ -88,7 +83,6 @@ describe("escrow", () => {
   let escrowBump: number;
   let vault:      PublicKey; // ATA owned by escrow PDA, holds mint_x
 
-  // ─────────────────────────────────────────────────────────────────────────
   before("fund wallets, create mints, create ATAs, seed balances", async () => {
     await Promise.all([
       airdrop(provider, maker.publicKey),
@@ -140,9 +134,6 @@ describe("escrow", () => {
     );
   });
 
-  // ───────────────────────────────────────────────────────────────────────────
-  // make
-  // ───────────────────────────────────────────────────────────────────────────
 
   describe("make", () => {
 
@@ -177,7 +168,7 @@ describe("escrow", () => {
         .signers([maker])
         .rpc();
 
-      // ── escrow account fields ────────────────────────────────────────────
+      // escrow account fields 
       const escrow = await program.account.escrow.fetch(escrowKey);
       assert.equal(escrow.seed.toString(),         SEED.toString(),            "seed");
       assert.equal(escrow.maker.toBase58(),         maker.publicKey.toBase58(), "maker");
@@ -187,7 +178,7 @@ describe("escrow", () => {
       assert.equal(escrow.receiveAmount.toString(), RECEIVE_AMOUNT.toString(),  "receive_amount");
       assert.equal(escrow.bump,                     escrowBump,                 "bump");
 
-      // ── vault holds the deposited tokens (RED while BUG-4 present) ───────
+      // vault holds the deposited tokens (RED while BUG-4 present) 
       const vaultAccount = await getAccount(connection, vault);
       assert.equal(
         vaultAccount.amount.toString(),
@@ -195,7 +186,7 @@ describe("escrow", () => {
         "vault must hold deposit_amount after make"
       );
 
-      // ── maker's mint_x balance reduced by deposit_amount ─────────────────
+      // maker's mint_x balance reduced by deposit_amount
       const makerX = await getAccount(connection, makerAtaX);
       assert.equal(
         makerX.amount.toString(),
@@ -268,10 +259,7 @@ describe("escrow", () => {
 
   });
 
-  // ───────────────────────────────────────────────────────────────────────────
-  // take
-  // ───────────────────────────────────────────────────────────────────────────
-
+  
   describe("take", () => {
     let makerAtaYBefore: bigint;
     let takerAtaXBefore: bigint;
@@ -318,7 +306,7 @@ describe("escrow", () => {
         .signers([taker])
         .rpc();
 
-      // ── maker received exactly receive_amount of mint_y ──────────────────
+      // maker received exactly receive_amount of mint_y 
       const makerY = await getAccount(connection, makerAtaY);
       assert.equal(
         (makerY.amount - makerAtaYBefore).toString(),
@@ -326,7 +314,7 @@ describe("escrow", () => {
         "maker must receive exactly receive_amount of mint_y"
       );
 
-      // ── taker received exactly deposit_amount of mint_x ──────────────────
+      // taker received exactly deposit_amount of mint_x 
       const takerX = await getAccount(connection, takerAtaX);
       assert.equal(
         (takerX.amount - takerAtaXBefore).toString(),
@@ -334,7 +322,7 @@ describe("escrow", () => {
         "taker must receive exactly deposit_amount of mint_x"
       );
 
-      // ── taker fully spent their mint_y ────────────────────────────────────
+      // taker fully spent their mint_y 
       const takerY = await getAccount(connection, takerAtaY);
       assert.equal(
         takerY.amount.toString(),
