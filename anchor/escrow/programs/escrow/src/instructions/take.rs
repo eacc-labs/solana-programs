@@ -15,40 +15,41 @@ pub struct Take<'info> {
     pub taker: Signer<'info>,
 
     #[account(address = escrow.mint_x)]
-    pub mint_x: InterfaceAccount<'info, Mint>,
+    pub mint_x: Box<InterfaceAccount<'info, Mint>>,
     #[account(address = escrow.mint_y)]
-    pub mint_y: InterfaceAccount<'info, Mint>,
+    pub mint_y: Box<InterfaceAccount<'info, Mint>>,
 
     #[account(
         mut,
         associated_token::mint = escrow.mint_x,
         associated_token::authority = taker
     )]
-    pub taker_ata_x: InterfaceAccount<'info, TokenAccount>,
+    pub taker_ata_x: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(
         mut,
         associated_token::mint = escrow.mint_y,
         associated_token::authority = taker
     )]
-    pub taker_ata_y: InterfaceAccount<'info, TokenAccount>,
+    pub taker_ata_y: Box<InterfaceAccount<'info, TokenAccount>>,
 
     #[account(
         mut,
         associated_token::mint = escrow.mint_x,
         associated_token::authority = escrow.maker
     )]
-    pub maker_ata_x: InterfaceAccount<'info, TokenAccount>,
+    pub maker_ata_x: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(
         mut,
         associated_token::mint = escrow.mint_y,
         associated_token::authority = escrow.maker
     )]
-    pub maker_ata_y: InterfaceAccount<'info, TokenAccount>,
+    pub maker_ata_y: Box<InterfaceAccount<'info, TokenAccount>>,
 
     #[account(
         mut,
         seeds = [b"escrow", escrow.maker.as_ref(), escrow.seed.to_le_bytes().as_ref()],
-        bump = escrow.bump
+        bump = escrow.bump,
+        close = taker
     )]
     pub escrow: Account<'info, Escrow>,
 
@@ -57,7 +58,7 @@ pub struct Take<'info> {
         associated_token::mint = escrow.mint_x,
         associated_token::authority = escrow,
     )]
-    pub vault: InterfaceAccount<'info, TokenAccount>,
+    pub vault: Box<InterfaceAccount<'info, TokenAccount>>,
 
     pub token_program: Interface<'info, TokenInterface>,
     pub associated_token_program: Program<'info, AssociatedToken>,
@@ -71,7 +72,7 @@ impl<'info> Take<'info> {
         let cpi_accounts = TransferChecked {
             from: self.taker_ata_y.to_account_info(),
             to: self.maker_ata_y.to_account_info(),
-            mint: self.maker_ata_y.to_account_info(),
+            mint: self.mint_y.to_account_info(),
             authority: self.taker.to_account_info(),
         };
 
@@ -94,7 +95,7 @@ impl<'info> Take<'info> {
             authority: self.escrow.to_account_info(),
         };
 
-        let seed_bytes = self.escrow.seed.to_be_bytes();
+        let seed_bytes = self.escrow.seed.to_le_bytes();
 
         let seeds = &[
             b"escrow",
@@ -121,7 +122,7 @@ impl<'info> Take<'info> {
             authority: self.escrow.to_account_info(),
         };
 
-        let seed_bytes = self.escrow.seed.to_be_bytes();
+        let seed_bytes = self.escrow.seed.to_le_bytes();
 
         let seeds = &[
             b"escrow",
